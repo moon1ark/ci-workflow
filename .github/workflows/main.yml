@@ -1,0 +1,40 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin' 
+        cache: 'maven'         
+
+    - name: Build and test with Maven
+      run: mvn clean install
+
+
+    - name: Update file for verification of completion
+      run: |
+        echo "Last Java build completion: $(date)" > last-run.txt
+
+    - name: Make commit and send new file
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "CI: Updated timestamp of last Java build"
+        branch: main
+        file_pattern: last-run.txt
+        commit_user_name: GitHub Actions Bot
+        commit_user_email: actions@github.com
